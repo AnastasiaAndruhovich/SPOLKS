@@ -7,8 +7,10 @@ import by.andruhovich.server.exception.socket.SendDataTechnicalException;
 
 import java.io.*;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.channels.ServerSocketChannel;
 
 public class TCPSocket {
     private ServerSocket serverSocket;
@@ -24,6 +26,22 @@ public class TCPSocket {
             serverSocket = new ServerSocket(port);
             serverSocket.setReceiveBufferSize(BUFFER_SIZE);
             haveClient = false;
+
+            System.out.println("Address: " + InetAddress.getLocalHost());
+            System.out.println("Port: " + port);
+        } catch (IOException e) {
+            throw new CreateSocketTechnicalException("Creating server socket failure! Port: " + port);
+        }
+    }
+
+    public TCPSocket(int port, ServerSocketChannel serverSocketChannel) throws CreateSocketTechnicalException {
+        try {
+            serverSocket = serverSocketChannel.socket();
+            serverSocket.setReceiveBufferSize(BUFFER_SIZE);
+            haveClient = false;
+
+            InetSocketAddress inetSocketAddress = new InetSocketAddress( port );
+            serverSocket.bind(inetSocketAddress);
 
             System.out.println("Address: " + InetAddress.getLocalHost());
             System.out.println("Port: " + port);
