@@ -2,6 +2,7 @@ package by.andruhovich.server.service;
 
 import by.andruhovich.server.command.CommandParser;
 import by.andruhovich.server.console.ConsolePrinter;
+import by.andruhovich.server.data.FileData;
 import by.andruhovich.server.exception.file.FileActionTechnicalException;
 import by.andruhovich.server.exception.file.FileNotFoundTechnicalException;
 import by.andruhovich.server.exception.socket.CreateSocketTechnicalException;

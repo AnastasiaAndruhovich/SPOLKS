@@ -30,6 +30,7 @@ public class ConsolePrinter {
         System.out.println("Choose mode:");
         System.out.println("1 - TCP");
         System.out.println("2 - UDP");
+        System.out.println("3 - Multiple TCP in one thread");
         System.out.println("0 - Exit");
         String answer = getLine();
         return Integer.parseInt(answer);

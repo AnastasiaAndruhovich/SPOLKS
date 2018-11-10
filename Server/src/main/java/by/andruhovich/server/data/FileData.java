@@ -1,4 +1,4 @@
-package by.andruhovich.server.service;
+package by.andruhovich.server.data;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -6,6 +6,8 @@ import java.util.Objects;
 public class FileData {
     private byte[] packet;
     private int packetSize;
+
+    public FileData() {}
 
     public FileData(byte[] packet, int packetSize) {
         this.packet = packet;

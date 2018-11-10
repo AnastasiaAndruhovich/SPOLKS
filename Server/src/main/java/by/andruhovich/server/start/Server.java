@@ -1,6 +1,7 @@
 package by.andruhovich.server.start;
 
 import by.andruhovich.server.console.ConsolePrinter;
+import by.andruhovich.server.service.MultipleTCPSocketService;
 import by.andruhovich.server.service.TCPSocketService;
 import by.andruhovich.server.service.UDPSocketService;
 
@@ -27,6 +28,9 @@ public class Server {
                 UDPSocketService udpSocketService = new UDPSocketService();
                 udpSocketService.serviceSocket();
                 break;
+            case 3:
+                MultipleTCPSocketService multipleTCPSocketService = new MultipleTCPSocketService();
+                multipleTCPSocketService.serviceSocket();
         }
     }
 }
