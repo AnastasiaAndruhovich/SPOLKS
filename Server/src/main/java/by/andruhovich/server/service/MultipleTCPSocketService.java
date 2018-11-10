@@ -1,24 +1,16 @@
 package by.andruhovich.server.service;
 
 import by.andruhovich.server.command.CommandParser;
-import by.andruhovich.server.command.TCPCommandAction;
 import by.andruhovich.server.console.ConsolePrinter;
-import by.andruhovich.server.console.ConsoleReader;
 import by.andruhovich.server.data.ConfigFileData;
 import by.andruhovich.server.exception.file.FileActionTechnicalException;
 import by.andruhovich.server.exception.file.FileNotFoundTechnicalException;
 import by.andruhovich.server.exception.socket.AcceptSocketTechnicalException;
 import by.andruhovich.server.exception.socket.CreateSocketTechnicalException;
-import by.andruhovich.server.exception.socket.ReceiveDataTechnicalException;
-import by.andruhovich.server.exception.socket.SocketTimeoutTechnicalException;
-import by.andruhovich.server.file.FileReader;
 import by.andruhovich.server.socket.TCPSocket;
 import by.andruhovich.server.type.CommandType;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -26,9 +18,8 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
-import static java.nio.channels.SelectionKey.*;
+import static java.nio.channels.SelectionKey.OP_ACCEPT;
 
 public class MultipleTCPSocketService {
     private String dataFromClient;
@@ -45,19 +36,18 @@ public class MultipleTCPSocketService {
     public int serviceSocket() {
         int port = ConsolePrinter.enterPort();
         configFileDataMap = new LinkedHashMap<>();
-        byteBuffer = ByteBuffer.allocate( BUFFER_SIZE );
+        byteBuffer = ByteBuffer.allocate(BUFFER_SIZE);
 
         try {
             ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
-            serverSocketChannel.configureBlocking( false );
+            serverSocketChannel.configureBlocking(false);
 
             TCPSocket tcpSocket = new TCPSocket(port, serverSocketChannel);
             Selector selector = Selector.open();
 
-            serverSocketChannel.register( selector, OP_ACCEPT);
-            System.out.println( "Listening on port " + port);
+            serverSocketChannel.register(selector, OP_ACCEPT);
+            System.out.println("Listening on port " + port);
 
-            Set<SelectionKey> selectedKeys = null;
             SelectionKey key = null;
 
             while (true) {
@@ -66,16 +56,21 @@ public class MultipleTCPSocketService {
                     if (existingConnectionQuantity == 0) {
                         continue;
                     }
+                } catch (IOException e) {
+                    System.out.println(e.getMessage());
+                    return -1;
+                }
 
-                    selectedKeys = selector.selectedKeys();
-                    Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
-                    while (keyIterator.hasNext()) {
+                Set<SelectionKey> selectedKeys = selector.selectedKeys();
+                Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
+                while (keyIterator.hasNext()) {
+                    try {
                         key = keyIterator.next();
-                        if(key.isAcceptable()) {
+                        if (key.isAcceptable()) {
                             Socket clientSocket = tcpSocket.waitForClient();
                             SocketChannel clientSocketChannel = clientSocket.getChannel();
-                            clientSocketChannel.configureBlocking( false );
-                            clientSocketChannel.register(selector, SelectionKey.OP_READ );
+                            clientSocketChannel.configureBlocking(false);
+                            clientSocketChannel.register(selector, SelectionKey.OP_READ);
 
                             String inetAddress = clientSocket.getInetAddress().getHostAddress();
                             if (configFileDataMap.containsKey(inetAddress)) {
@@ -86,7 +81,7 @@ public class MultipleTCPSocketService {
                             }
 
                         } else if (key.isReadable()) {
-                            currentSocketChannel = (SocketChannel)key.channel();
+                            currentSocketChannel = (SocketChannel) key.channel();
                             ByteBuffer byteBuffer = ByteBuffer.allocate(BUFFER_SIZE);
                             byteBuffer.clear();
                             currentSocketChannel.read(byteBuffer);
@@ -125,25 +120,20 @@ public class MultipleTCPSocketService {
                                     defaultCommand();
                             }
                         }
-                    }
-                    selectedKeys.clear();
-
-                } catch (AcceptSocketTechnicalException  | IOException | FileActionTechnicalException e) {
-                    System.out.println(e.getMessage());
-                    configFileDataMap.get(currentClientAddress).cleanHandshakeCount();
-                    if (key != null) {
+                    } catch (AcceptSocketTechnicalException | FileActionTechnicalException | IOException e) {
+                        System.out.println(e.getMessage());
+                        configFileDataMap.get(currentClientAddress).cleanHandshakeCount();
                         key.cancel();
                     }
-                    if (selectedKeys != null) {
-                        selectedKeys.clear();
-                    }
-                }
-            }
 
+                }
+                selectedKeys.clear();
+            }
         } catch (CreateSocketTechnicalException | IOException e) {
             System.out.println(e.getMessage());
             return -1;
         }
+
     }
 
     private void handshakeCommand() throws IOException {
@@ -156,6 +146,9 @@ public class MultipleTCPSocketService {
             byteBuffer.put(dataForClient.getBytes());
             byteBuffer.flip();
             currentSocketChannel.write(byteBuffer);
+        } else {
+            //костыль!!!
+            configFileDataMap.get(currentClientAddress).cleanHandshakeCount();
         }
     }
 
