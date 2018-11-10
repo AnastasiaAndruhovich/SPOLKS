@@ -22,7 +22,7 @@ public class TCPSocketService {
 
     private TCPSocket tcpSocket;
     private String dataFromServer;
-    private boolean isDownloading = true;
+    private boolean isDownloading = false;
     private String filename;
     private FileWriter fileWriter;
     private int packetCount;
@@ -43,7 +43,9 @@ public class TCPSocketService {
                     tcpSocket.sendData(dataForServer);
                 }
                 try {
-                    dataFromServer = tcpSocket.receiveStringData();
+                    byte[] data = new byte[DATA_SIZE];
+                    tcpSocket.receiveByteData(data, DATA_SIZE);
+                    dataFromServer = new String(data);
                     CommandType commandType = CommandParser.getCommandType(dataFromServer);
                     switch (commandType) {
                         case TIME:
@@ -109,6 +111,10 @@ public class TCPSocketService {
         System.out.println("Packet count: " + packetCount);
         filename = CommandParser.getFilename(dataFromServer);
         fileWriter.openFile(filename, true);
+
+        int packetNumber = CommandParser.getPacketNumber(dataFromServer);
+        String dataForServer = packetNumber + " " + CommandType.ACK;
+        tcpSocket.sendData(dataForServer);
     }
 
     private void downloadCommand() throws ReceiveDataTechnicalException {
@@ -119,7 +125,7 @@ public class TCPSocketService {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            tcpSocket.receiveByteData(data, DATA_SIZE);
+            tcpSocket.receiveFullyByteData(data, DATA_SIZE);
             dataFromServer = new String(data);
             int filePacketNumber = 0;
             try {
@@ -150,6 +156,11 @@ public class TCPSocketService {
         packetCount = CommandParser.getPacketCount(dataFromServer);
         System.out.println("Rest packet count: " + packetCount);
         fileWriter.openFile(filename, false);
+
+        int packetNumber = CommandParser.getPacketNumber(dataFromServer);
+        String dataForServer = packetNumber + " " + CommandType.ACK;
+        tcpSocket.sendData(dataForServer);
+
         downloadCommand();
     }
 

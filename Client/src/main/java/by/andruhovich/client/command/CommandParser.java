@@ -47,7 +47,7 @@ public class CommandParser {
 
     public static int getPacketCount(String data) {
         String[] list = splitBySpace(data);
-        return Integer.parseInt(list[PACKET_COUNT_POSITION]);
+        return Integer.parseInt(list[PACKET_COUNT_POSITION].replaceAll("\u0000", ""));
     }
 
     public static String getData(String data) {

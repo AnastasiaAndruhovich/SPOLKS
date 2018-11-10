@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 public class TCPCommandAction {
     private static final int CONNECT_ATTEMPT_COUNT = 10;
     private static final int RECONNECT_INTERVAL = 10;
+    private static final int BUFFER_SIZE = 1024;
 
     public static int packetNumber = 0;
 
@@ -53,13 +54,15 @@ public class TCPCommandAction {
         int handshakeCount = 0;
         String dataForServer;
         String dataFromServer;
+        byte[] data = new byte[BUFFER_SIZE];
 
         while (handshakeCount == 0) {
             packetNumber++;
             dataForServer = packetNumber + " " + CommandType.HANDSHAKE.name();
             tcpSocket.sendData(dataForServer);
             try {
-                dataFromServer = tcpSocket.receiveStringData();
+                tcpSocket.receiveByteData(data, BUFFER_SIZE);
+                dataFromServer = new String(data);
                 packetNumber = CommandParser.getPacketNumber(dataFromServer);
                 CommandType handshakeCommand = CommandParser.getCommandType(dataFromServer);
                 System.out.println(handshakeCommand + ":)");

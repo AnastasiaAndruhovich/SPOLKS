@@ -57,6 +57,14 @@ public class TCPSocket {
 
     public void receiveByteData(byte[] data, int size) throws ReceiveDataTechnicalException {
         try {
+            inBytes.read(data, 0, size);
+        } catch (IOException e) {
+            throw new ReceiveDataTechnicalException("Receiving byte data failure!");
+        }
+    }
+
+    public void receiveFullyByteData(byte[] data, int size) throws ReceiveDataTechnicalException {
+        try {
             inBytes.readFully(data, 0, size);
         } catch (IOException e) {
             throw new ReceiveDataTechnicalException("Receiving byte data failure!");
