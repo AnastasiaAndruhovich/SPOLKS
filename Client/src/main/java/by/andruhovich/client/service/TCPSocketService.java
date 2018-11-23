@@ -31,7 +31,7 @@ public class TCPSocketService {
         serverIP = ConsolePrinter.enterIP();
 
         try {
-            tcpSocket = TCPCommandAction.connect(serverIP, port);
+            tcpSocket = TCPCommandAction.serverConnect(serverIP, port);
             fileWriter = new FileWriter();
 
             while (tcpSocket.isConnected()) {

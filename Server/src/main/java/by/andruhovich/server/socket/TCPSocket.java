@@ -18,11 +18,13 @@ public class TCPSocket {
     private boolean haveClient;
 
     private static final int BUFFER_SIZE = 1500;
+    private static final int TIMEOUT = 30000;
 
     public TCPSocket(int port) throws CreateSocketTechnicalException {
         try {
             serverSocket = new ServerSocket(port);
             serverSocket.setReceiveBufferSize(BUFFER_SIZE);
+            serverSocket.setSoTimeout(TIMEOUT);
             haveClient = false;
 
             System.out.println("Address: " + InetAddress.getLocalHost());

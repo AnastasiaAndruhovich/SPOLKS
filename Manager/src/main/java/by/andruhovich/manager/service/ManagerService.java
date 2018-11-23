@@ -27,7 +27,6 @@ public class ManagerService {
     private SocketChannel currentSocketChannel;
 
     private static final int BUFFER_SIZE = 1500;
-    private static final int DATA_SIZE = 1024;
 
     private HashMap<Integer, String> portList;
     private static final int START_PORT = 5000;
@@ -42,7 +41,7 @@ public class ManagerService {
         byteBuffer = ByteBuffer.allocate(BUFFER_SIZE);
         fullPortList();
         packetNumber = 0;
-        processList = new HashMap<>();
+        processList = new LinkedHashMap<>();
 
         try {
             ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
@@ -95,7 +94,6 @@ public class ManagerService {
                                     break;
                                 case EXIT:
                                     exitCommand();
-                                    createProcess();
                                     key.cancel();
                                     break;
                             }
@@ -117,7 +115,14 @@ public class ManagerService {
 
     private void getPortNumberCommand() throws IOException {
         System.out.println("GET_PORT_NUMBER command:) " + currentClientAddress);
-        int port = getFirstFreePort();
+        int port;
+        if (!isClientAlreadyExist()) {
+            port = getFirstFreePort();
+            createProcess();
+        } else {
+            port = getPortByAddress(currentClientAddress);
+        }
+
         packetNumber++;
         if (port != 0) {
             dataForClient = packetNumber + " " + CommandType.GET_PORT_NUMBER.name() + " " + port;
@@ -180,6 +185,15 @@ public class ManagerService {
                 break;
             }
         }
+    }
+
+    private boolean isClientAlreadyExist() {
+        for (Map.Entry<Integer, String> pair : portList.entrySet()) {
+            if (pair.getValue().equals(currentClientAddress)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void removeDeadProcesses() {

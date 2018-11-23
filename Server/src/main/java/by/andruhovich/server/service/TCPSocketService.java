@@ -91,22 +91,19 @@ public class TCPSocketService {
                             defaultCommand();
                     }
                 }
-                if (!ConsolePrinter.isServerWantToContinue()) {
-                    tcpSocket.closeSocket();
-                    ConsoleReader.close();
-                    break;
-                } else {
-                    oldClient = clientSocket.getInetAddress();
-                    handshakeCount = 0;
-                    fileReader.closeFile();                }
-            } catch (AcceptSocketTechnicalException | ReceiveDataTechnicalException | SocketTimeoutTechnicalException |
-                    FileActionTechnicalException e) {
+                tcpSocket.closeSocket();
+                ConsoleReader.close();
+                break;
+            } catch (ReceiveDataTechnicalException | FileActionTechnicalException e) {
                 System.out.println(e.getMessage());
                 tcpSocket.setNoClient();
                 handshakeCount = 0;
                 if (clientSocket != null) {
                     oldClient = clientSocket.getInetAddress();
                 }
+            } catch (AcceptSocketTechnicalException | SocketTimeoutTechnicalException e) {
+                System.out.println(e.getMessage());
+                return -1;
             }
         }
         return 0;

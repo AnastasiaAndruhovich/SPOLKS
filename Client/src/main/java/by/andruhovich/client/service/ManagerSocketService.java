@@ -34,7 +34,7 @@ public class ManagerSocketService {
         attemptCount = 0;
 
         try {
-            tcpSocket = TCPCommandAction.connect(serverIP, port);
+            tcpSocket = TCPCommandAction.managerConnect(serverIP, port);
 
             while (tcpSocket.isConnected()) {
                 try {
