@@ -37,9 +37,7 @@ public class TCPSocketService {
     private long startDownloadTime;
     private long sentBytesCount = 0;
 
-    public int serviceSocket() {
-        int port = ConsolePrinter.enterPort();
-
+    public int serviceSocket(int port) {
         try {
             tcpSocket = new TCPSocket(port);
         } catch (CreateSocketTechnicalException e) {

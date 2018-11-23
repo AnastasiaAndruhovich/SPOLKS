@@ -2,9 +2,7 @@ package by.andruhovich.client.command;
 
 import by.andruhovich.client.exception.socket.AttemptCreateSocketTechnicalException;
 import by.andruhovich.client.exception.socket.CreateSocketTechnicalException;
-import by.andruhovich.client.exception.socket.ReceiveDataTechnicalException;
 import by.andruhovich.client.socket.TCPSocket;
-import by.andruhovich.client.type.CommandType;
 
 import java.net.InetAddress;
 import java.util.concurrent.TimeUnit;
@@ -17,16 +15,9 @@ public class TCPCommandAction {
 
     public static TCPSocket connect(InetAddress ipAddress, int port) throws AttemptCreateSocketTechnicalException {
         int connectAttemptCount = 0;
-        TCPSocket tcpSocket;
         while (connectAttemptCount < CONNECT_ATTEMPT_COUNT) {
             try {
-                tcpSocket = new TCPSocket(ipAddress, port);
-                packetNumber = 0;
-                if (handshake(tcpSocket)) {
-                    return tcpSocket;
-                }
-                tcpSocket.closeSocket();
-                connectAttemptCount++;
+                return new TCPSocket(ipAddress, port);
             } catch (CreateSocketTechnicalException e) {
                 connectAttemptCount++;
                 System.out.println("Attempt socket creating number " + connectAttemptCount + " failure!");
@@ -49,32 +40,4 @@ public class TCPCommandAction {
         }
     }
 
-    private static boolean handshake(TCPSocket tcpSocket) {
-        int handshakeCount = 0;
-        String dataForServer;
-        String dataFromServer;
-
-        while (handshakeCount == 0) {
-            packetNumber++;
-            dataForServer = packetNumber + " " + CommandType.HANDSHAKE.name();
-            tcpSocket.sendData(dataForServer);
-            try {
-                dataFromServer = tcpSocket.receiveStringData();
-                packetNumber = CommandParser.getPacketNumber(dataFromServer);
-                CommandType handshakeCommand = CommandParser.getCommandType(dataFromServer);
-                System.out.println(handshakeCommand + ":)");
-            } catch (ReceiveDataTechnicalException e) {
-                System.out.println(e.getMessage());
-                return false;
-            }
-            CommandType commandType = CommandParser.getCommandType(dataFromServer);
-            if (commandType.equals(CommandType.HANDSHAKE)) {
-                handshakeCount++;
-                packetNumber++;
-                dataForServer = packetNumber + " " + CommandType.HANDSHAKE.name();
-                tcpSocket.sendData(dataForServer);
-            }
-        }
-        return true;
-    }
 }

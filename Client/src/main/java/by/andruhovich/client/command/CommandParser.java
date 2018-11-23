@@ -16,6 +16,12 @@ public class CommandParser {
         return Integer.parseInt(packetNumber);
     }
 
+    public static int getPortNumber(String data) {
+        String port = splitBySpace(data)[DATA_START_POSITION];
+        port = port.replaceAll("\0", "");
+        return Integer.parseInt(port);
+    }
+
     public static int getFileDataSize(String data) {
         String size = splitBySpace(data)[FILE_DATA_SIZE_POSITION];
         return Integer.parseInt(size);

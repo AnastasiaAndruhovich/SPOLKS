@@ -27,9 +27,8 @@ public class TCPSocketService {
     private FileWriter fileWriter;
     private int packetCount;
 
-    public int serviceSocket() {
+    public int serviceSocket(int port) {
         serverIP = ConsolePrinter.enterIP();
-        int port = ConsolePrinter.enterPort();
 
         try {
             tcpSocket = TCPCommandAction.connect(serverIP, port);
@@ -119,7 +118,7 @@ public class TCPSocketService {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            tcpSocket.receiveByteData(data, DATA_SIZE);
+            tcpSocket.receiveFullyByteData(data, DATA_SIZE);
             dataFromServer = new String(data);
             int filePacketNumber = 0;
             try {
