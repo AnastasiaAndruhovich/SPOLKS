@@ -26,8 +26,8 @@ public class ManagerSocketService {
     private static final int SLEEPING_TIME_IN_MILLISECONDS = 10;
     private int attemptCount;
 
-    public int serviceSocket() {
-        serverIP = ConsolePrinter.enterIP();
+    public int serviceSocket(InetAddress ip) {
+        serverIP = ip;
         int port = ConsolePrinter.enterPort();
         packetNumber = 0;
         serverPort = 0;

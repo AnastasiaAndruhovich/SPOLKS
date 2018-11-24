@@ -27,8 +27,8 @@ public class TCPSocketService {
     private FileWriter fileWriter;
     private int packetCount;
 
-    public int serviceSocket(int port) {
-        serverIP = ConsolePrinter.enterIP();
+    public int serviceSocket(int port, InetAddress ip) {
+        serverIP = ip;
 
         try {
             tcpSocket = TCPCommandAction.serverConnect(serverIP, port);

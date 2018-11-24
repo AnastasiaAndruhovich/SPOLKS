@@ -4,6 +4,7 @@ import by.andruhovich.manager.command.CommandParser;
 import by.andruhovich.manager.console.ConsolePrinter;
 import by.andruhovich.manager.exception.AcceptSocketTechnicalException;
 import by.andruhovich.manager.exception.CreateSocketTechnicalException;
+import by.andruhovich.manager.file.ProcessChecker;
 import by.andruhovich.manager.socket.TCPSocket;
 import by.andruhovich.manager.type.CommandType;
 
@@ -32,7 +33,7 @@ public class ManagerService {
     private static final int START_PORT = 5000;
 
     private HashMap<String, Process> processList;
-    private static final int MAX_PROCESS_QUANTITY = 10;
+    private static final int MAX_PROCESS_QUANTITY = 2;
 
     private int packetNumber;
 
@@ -200,17 +201,24 @@ public class ManagerService {
         Iterator<Map.Entry<String, Process>> iterator = processList.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<String, Process> pair = iterator.next();
-            if (!pair.getValue().isAlive()) {
+            long port = getPortByAddress(pair.getKey());
+            if (!isProcessAlive(port)) {
                 returnPort(pair.getKey());
                 processList.remove(pair.getKey());
             }
         }
     }
 
+    private boolean isProcessAlive(long port) {
+        String filename = String.valueOf(port) + ".txt";
+        return ProcessChecker.isFileBusy(filename);
+
+    }
+
     private void createProcess() throws IOException {
         int port = getPortByAddress(currentClientAddress);
         ProcessBuilder processBuilder = new ProcessBuilder("cmd", "/c", "start", "java", "-jar", "Server.jar", String.valueOf(port));
-        Process process = processBuilder.start();
+        final Process process = processBuilder.start();
         processList.put(currentClientAddress, process);
     }
 }
