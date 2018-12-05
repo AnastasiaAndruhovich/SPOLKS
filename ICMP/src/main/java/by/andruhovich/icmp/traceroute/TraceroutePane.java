@@ -1,9 +1,5 @@
 package by.andruhovich.icmp.traceroute;
 
-import by.andruhovich.icmp.icmp.IcmpPingRequest;
-import by.andruhovich.icmp.icmp.IcmpPingResponse;
-import by.andruhovich.icmp.icmp.IcmpPingUtil;
-
 import javax.swing.*;
 import javax.swing.GroupLayout.Alignment;
 import java.awt.*;
@@ -78,7 +74,7 @@ public class TraceroutePane extends JFrame implements Traceroute.Context {
         logArea.setWrapStyleWord(true);
         logArea.setEditable(false);
         logArea.setFont(logFont);
-        logArea.setBackground(new Color(32, 32, 0));
+        logArea.setBackground(Color.black);
         logArea.setForeground(new Color(240, 192, 0));
 
         JScrollPane logPane = new JScrollPane();
@@ -366,97 +362,4 @@ public class TraceroutePane extends JFrame implements Traceroute.Context {
         }
     }
 
-    /**
-     * Main entry point. Creates and makes visible GUI...
-     *
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        final IcmpPingRequest request = IcmpPingUtil.createIcmpPingRequest();
-
-        request.setHost("www.google.org");
-        for (int count = 1; count <= 4; count++) {
-            final IcmpPingResponse response = IcmpPingUtil.executePingRequest(request);
-            final String formattedResponse = IcmpPingUtil.formatResponse(response);
-            System.out.println(formattedResponse);
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-        }
-
-        System.loadLibrary("jpcap");
-        System.loadLibrary("wpcap");
-        final String[] copyOfArgs = args;
-
-        java.awt.EventQueue.invokeLater(() -> new TraceroutePane(copyOfArgs).setVisible(true));
-    }
 }
-
-/*!
- *  \mainpage ICMP Traceroute and Ping based on Jpcap
- *
- *  \section s_intro Introduction
- *
-ef p_task as a part of
- *  the <a href="http://dsv.su.se/utbildning/distans/ip1" target="_blank"><b>SU/IP1
- *  course</b></a>.
- *
- *  \image html traceRouteApp.png
- *
- *  \section s_desc Description
- *
- *  Application's graphical user interface is implemented in the class TraceroutePane.
- *  The application offers user to enter IP address or hostname and to select network
- *  interface used for originating ICMP packets.
- *
- *  The applications accepts commands in the following format:
- *
- *   - <code>&lt;host&gt; [ ping ]</code>
- *
- *  where optional keyword <i>ping</i> (following the host name) indicates to
- *  application to perform ping instead of trace route.
- *
- *  ICMP packets are sent and received in a separate worker thread  Traceroute.run()
- *  instantiated from the class Traceroute. User can stop trace route at any time by
- *  pressing "Cancel" button (the thread will be stopped gracefully).
- *
- *  One can alternatively start application from the os command line with parameters:
- *
- *   - <code>java -jar <a href="../traceRoute.jar">traceRoute.jar</a>
- *     [ &lt;host&gt; [ ping ] ]</code>
- *
- *  where the default is to trace route and not to ping.
- *
- *  \section s_req Requirements
- *
- *  <div style="color:darkred; font-weight: bold;">
- *  Application needs the following components to be installed:
- *  </div>
- *
- *   - <a href="http://netresearch.ics.uci.edu/kfujii/Jpcap/doc/download.html" target="_blank">
- *     <b>Jpcap</b></a>: java library for capturing and sending network packets<br>
- *   - <a href="http://www.winpcap.org/install/default.htm" target="_blank">
- *     <b>WinPCAP</b></a>: (industry standard) windows capture library.
- *
- *  \section s_jar Executable
- *
- *  The jar file of the package can be found <a href="../traceRoute.jar"><b>here</b></a>.
- *
- *  \section s_src Sources
- *
- *  Source files:
-ef Traceroute.java
-ef TraceroutePane.java
- *
- */
-/*! \page p_task IP1-4.3 Uppgift
- *
- *  Gor ett program som implementerar ping, traceroute eller nagot annat
- *  natverksprogram som anvander eller nagot som man inte kan gora i standardversionen
- *  av Java. Man ska inte anropa motsvarande funktioner i operativsystemet via
- *  exempelvis: <code>Runtime.getRuntime().exec("myprog.exe")</code> utan man ska
- *  anvanda ett Java-paket som anropar C-kod som implementerar raw sockets.
- */

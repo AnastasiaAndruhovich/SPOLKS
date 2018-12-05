@@ -1,9 +1,9 @@
 package by.andruhovich.icmp.icmp;
 
 /**
- * Internet Control Message Protocol for Java (ICMP4J)
- * http://www.icmp4j.org
- * Copyright 2009 and beyond, icmp
+ * ShortPasta Foundation
+ * http://www.shortpasta.org
+ * Copyright 2009 and beyond, Sal Ingrilli at the ShortPasta Software Foundation
  * <p/>
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version 3
@@ -12,12 +12,12 @@ package by.andruhovich.icmp.icmp;
  * 2. The credit is easily reachable and not burried deep
  * 3. Your end-user can easily see it
  * 4. You register your name (optional) and company/group/org name (required)
- * at http://www.icmp4j.org
+ * at http://www.shortpasta.org
  * 5. You do all of the above within 4 weeks of integrating this software
  * 6. You contribute feedback, fixes, and requests for features
  * <p/>
  * If/when you derive a commercial gain from using this software
- * please donate at http://www.icmp4j.org
+ * please donate at http://www.shortpasta.org
  * <p/>
  * If prefer or require, contact the author specified above to:
  * 1. Release you from the above requirements
@@ -41,12 +41,10 @@ public class IcmpPingResponse {
   private boolean successFlag;
   private boolean timeoutFlag;
   private String errorMessage;
-  private Throwable throwable;
   private String host;
   private int size;
   private int rtt;
   private int ttl;
-  private long duration;
   
   // my attributes
   public void setSuccessFlag (final boolean successFlag) { this.successFlag = successFlag; }
@@ -57,9 +55,6 @@ public class IcmpPingResponse {
   
   public void setErrorMessage (final String errorMessage) { this.errorMessage = errorMessage; }
   public String getErrorMessage () { return errorMessage; }
-  
-  public void setThrowable (final Throwable throwable) { this.throwable = throwable; }
-  public Throwable getThrowable () { return throwable; }
   
   public void setHost (final String host) { this.host = host; }
   public String getHost () { return host; }
@@ -72,29 +67,4 @@ public class IcmpPingResponse {
   
   public void setTtl (final int ttl) { this.ttl = ttl; }
   public int getTtl () { return ttl; }
-  
-  public void setDuration (final long duration) { this.duration = duration; }
-  public long getDuration () { return duration; }
-
-  /**
-   * The Object interface
-   * @return String
-   */
-  @Override
-  public String toString () {
-    
-    return
-      "[" +
-      "hashCode: " + super.hashCode () + ", " +
-      "successFlag: " + successFlag + ", " +
-      "timeoutFlag: " + timeoutFlag + ", " +
-      "errorMessage: " + errorMessage + ", " +
-      "throwable: " + throwable + ", " +
-      "host: " + host + ", " +
-      "size: " + size + ", " +
-      "rtt: " + rtt + ", " +
-      "ttl: " + ttl + ", " +
-      "duration: " + duration +
-      "]";
-  }
 }
