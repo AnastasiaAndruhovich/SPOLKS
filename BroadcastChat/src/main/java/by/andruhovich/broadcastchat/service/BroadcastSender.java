@@ -1,44 +1,83 @@
 package by.andruhovich.broadcastchat.service;
 
+import by.andruhovich.broadcastchat.console.ConsoleWriter;
+import by.andruhovich.broadcastchat.exception.CreateSocketTechnicalException;
+import by.andruhovich.broadcastchat.exception.SendDataTechnicalException;
+import by.andruhovich.broadcastchat.exception.SocketTechnicalException;
+
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.net.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.stream.Collectors;
 
-public class BroadcastSender extends Thread {
-    protected DatagramSocket socket;
-    protected boolean running;
-    protected byte[] buf = new byte[256];
+public class BroadcastSender {
+    private DatagramSocket socket;
+    private static final int PORT_NUMBER = 5000;
 
-    public BroadcastSender() throws IOException {
-        socket = new DatagramSocket(null);
-        socket.setReuseAddress(true);
-        socket.bind(new InetSocketAddress(4445));
+    public BroadcastSender() throws CreateSocketTechnicalException {
+        try {
+            socket = new DatagramSocket();
+            socket.setBroadcast(true);
+        } catch (SocketException e) {
+            throw new CreateSocketTechnicalException("Create socket error");
+        }
     }
 
-    @Override
-    public void run() {
-        running = true;
+    public void sendMessage(String message) throws SocketTechnicalException, SendDataTechnicalException {
+        byte[] data = message.getBytes();
+        List<InetAddress> addresses = getAllBroadcastAddresses();
+        for (InetAddress address : addresses) {
+            sendData(data, address);
+        }
+        /*try {
+            sendData(data, InetAddress.getByName("255.255.255.255"));
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }*/
+    }
 
-        while (running) {
-            try {
-                DatagramPacket packet = new DatagramPacket(buf, buf.length);
-                socket.receive(packet);
-                InetAddress address = packet.getAddress();
-                int port = packet.getPort();
-                packet = new DatagramPacket(buf, buf.length, address, port);
-                String received = new String(packet.getData(), 0, packet.getLength());
-                if (received.equals("end")) {
-                    running = false;
+    public void printAllBroadcastAddresses() throws SocketTechnicalException {
+        List<InetAddress> addresses = getAllBroadcastAddresses();
+        for (InetAddress address : addresses) {
+            ConsoleWriter.printLine(address.getHostAddress());
+        }
+    }
+
+    public void close() {
+        socket.close();
+    }
+
+    private List<InetAddress> getAllBroadcastAddresses() throws SocketTechnicalException {
+        List<InetAddress> broadcastList = new ArrayList<>();
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface networkInterface = interfaces.nextElement();
+
+                if (networkInterface.isLoopback() || !networkInterface.isUp()) {
                     continue;
                 }
-                socket.send(packet);
-            } catch (IOException e) {
-                e.printStackTrace();
-                running = false;
+
+                broadcastList.addAll(networkInterface.getInterfaceAddresses()
+                        .stream()
+                        .filter(address -> address.getBroadcast() != null)
+                        .map(InterfaceAddress::getBroadcast)
+                        .collect(Collectors.toList()));
             }
+            return broadcastList;
+        } catch (SocketException e) {
+            throw new SocketTechnicalException("Error socket execution");
         }
-        socket.close();
+    }
+
+    private void sendData(byte[] data, InetAddress address) throws SendDataTechnicalException {
+        DatagramPacket packet = new DatagramPacket(data, data.length, address, PORT_NUMBER);
+        try {
+            socket.send(packet);
+        } catch (IOException e) {
+            throw new SendDataTechnicalException("Send data error");
+        }
     }
 }
