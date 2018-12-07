@@ -1,0 +1,66 @@
+package by.andruhovich.multicastchat.service;
+
+import by.andruhovich.multicastchat.console.ConsoleWriter;
+import by.andruhovich.multicastchat.exception.CreateSocketTechnicalException;
+import by.andruhovich.multicastchat.exception.ReceiveDataTechnicalException;
+import by.andruhovich.multicastchat.service.constant.SubscriptionConstants;
+
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
+
+public class MulticastListener extends Thread {
+    private MulticastSocket socket;
+    private InetAddress group;
+    private DatagramPacket packet;
+    private byte[] buffer;
+
+    private static final int BUFFER_SIZE = 1024;
+    private static final int PORT_NUMBER = 6000;
+    private static final String GROUP_ADDRESS = "230.0.0.0";
+
+    public MulticastListener() throws CreateSocketTechnicalException {
+        try {
+            socket = new MulticastSocket(PORT_NUMBER);
+            socket.setReuseAddress(true);
+            group = InetAddress.getByName(GROUP_ADDRESS);
+            socket.joinGroup(group);
+            buffer = new byte[BUFFER_SIZE];
+            packet = new DatagramPacket(buffer, BUFFER_SIZE);
+        } catch (IOException e) {
+            throw new CreateSocketTechnicalException("Create socket error");
+        }
+    }
+
+    @Override
+    public void run() {
+        boolean running = true;
+        while (running) {
+            try {
+                if (SubscriptionConstants.isSubscribed.get()) {
+                    byte[] data = receivePacket();
+                    String receivedData = convertData(data);
+                    ConsoleWriter.printLine("Client " + packet.getAddress() + ": " + receivedData);
+                }
+            } catch (ReceiveDataTechnicalException e) {
+                ConsoleWriter.printLine(e.getMessage());
+                running = false;
+            }
+        }
+        socket.close();
+    }
+
+    private byte[] receivePacket() throws ReceiveDataTechnicalException {
+        try {
+            socket.receive(packet);
+            return packet.getData();
+        } catch (IOException e) {
+            throw new ReceiveDataTechnicalException("Receive data error");
+        }
+    }
+
+    private String convertData(byte[] data) {
+        return new String(data).replaceAll("\0", "");
+    }
+}
