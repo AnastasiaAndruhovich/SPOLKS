@@ -22,6 +22,7 @@ public class BroadcastListener extends Thread{
             socket = new DatagramSocket(PORT_NUMBER);
             socket.setReuseAddress(true);
             buffer = new byte[BUFFER_SIZE];
+            packet = new DatagramPacket(buffer, buffer.length);
         } catch (SocketException e) {
             throw new CreateSocketTechnicalException("Create socket error");
         }
@@ -44,7 +45,6 @@ public class BroadcastListener extends Thread{
     }
 
     private byte[] receivePacket() throws ReceiveDataTechnicalException {
-        packet = new DatagramPacket(buffer, buffer.length);
         try {
             socket.receive(packet);
             return packet.getData();
