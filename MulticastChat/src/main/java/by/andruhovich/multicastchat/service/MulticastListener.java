@@ -3,6 +3,7 @@ package by.andruhovich.multicastchat.service;
 import by.andruhovich.multicastchat.console.ConsoleWriter;
 import by.andruhovich.multicastchat.exception.CreateSocketTechnicalException;
 import by.andruhovich.multicastchat.exception.ReceiveDataTechnicalException;
+import by.andruhovich.multicastchat.exception.SendDataTechnicalException;
 import by.andruhovich.multicastchat.exception.SocketTechnicalException;
 import by.andruhovich.multicastchat.service.constant.SubscriptionConstants;
 
@@ -44,8 +45,13 @@ public class MulticastListener extends Thread {
                     byte[] data = receivePacket();
                     String receivedData = convertData(data);
                     ConsoleWriter.printLine("Client " + packet.getAddress() + ": " + receivedData);
+                    if (receivedData.equals("request")) {
+                        MulticastService.multicastSender.sendMessage("response");
+                    } else if (receivedData.equals("response")) {
+                        SubscriptionConstants.groupMembers.set(packet.getAddress());
+                    }
                 }
-            } catch (ReceiveDataTechnicalException e) {
+            } catch (ReceiveDataTechnicalException | SendDataTechnicalException e) {
                 ConsoleWriter.printLine(e.getMessage());
                 running = false;
             }
@@ -72,7 +78,6 @@ public class MulticastListener extends Thread {
             throw new SocketTechnicalException("Socket unsubscribe from group " + group.getHostAddress() + " error");
         }
     }
-
 
     private byte[] receivePacket() throws ReceiveDataTechnicalException {
         try {

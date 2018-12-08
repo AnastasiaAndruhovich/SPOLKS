@@ -5,12 +5,16 @@ import by.andruhovich.multicastchat.console.ConsoleWriter;
 import by.andruhovich.multicastchat.exception.CreateSocketTechnicalException;
 import by.andruhovich.multicastchat.exception.SendDataTechnicalException;
 import by.andruhovich.multicastchat.exception.SocketTechnicalException;
+import by.andruhovich.multicastchat.service.constant.SubscriptionConstants;
 import by.andruhovich.multicastchat.type.CommandType;
 
+import java.util.concurrent.TimeUnit;
+
 public class MulticastService {
+    public static MulticastSender multicastSender;
+
     public void service() {
         MulticastListener multicastListener = null;
-        MulticastSender multicastSender;
         boolean running = true;
 
         try {
@@ -28,6 +32,13 @@ public class MulticastService {
                 try {
                     switch (commandType) {
                         case PRINT:
+                            multicastSender.sendMessage("request");
+                            try {
+                                TimeUnit.SECONDS.sleep(5);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            System.out.println(SubscriptionConstants.groupMembers);
                             break;
                         case SUBSCRIBE:
                             multicastListener.subscribeToGroup();

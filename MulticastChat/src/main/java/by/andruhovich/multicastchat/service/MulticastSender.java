@@ -19,7 +19,7 @@ public class MulticastSender {
         try {
             socket = new DatagramSocket();
             group = InetAddress.getByName(GROUP_ADDRESS);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new CreateSocketTechnicalException("Create socket error");
         }
     }
