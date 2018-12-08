@@ -1,5 +1,6 @@
 package by.andruhovich.multicastchat.service.constant;
 
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,6 +33,15 @@ public class SubscriptionConstants {
             isFree.signal();
         } finally {
             lock.unlock();
+        }
+    }
+
+    public static InetAddress getLocalAddress() {
+        try (final DatagramSocket socket = new DatagramSocket()){
+            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+            return socket.getLocalAddress();
+        } catch (Exception e) {
+            return null;
         }
     }
 }

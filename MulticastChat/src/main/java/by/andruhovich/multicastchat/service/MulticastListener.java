@@ -9,10 +9,10 @@ import by.andruhovich.multicastchat.service.constant.SubscriptionConstants;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.util.Arrays;
+import java.util.Objects;
 
 public class MulticastListener extends Thread {
     private MulticastSocket socket;
@@ -47,7 +47,8 @@ public class MulticastListener extends Thread {
                     byte[] data = receivePacket();
                     String receivedData = convertData(data);
                     String packetAddress = packet.getAddress().getHostAddress();
-                    if (!packetAddress.equals(getLocalAddress())) {
+                    String localAddress = Objects.requireNonNull(SubscriptionConstants.getLocalAddress()).getHostAddress();
+                    if (!packetAddress.equals(localAddress)) {
                         ConsoleWriter.printLine("Client " + packet.getAddress() + ": " + receivedData);
                         if (receivedData.contains("request")) {
                             MulticastService.multicastSender.sendMessage("response");
@@ -81,15 +82,6 @@ public class MulticastListener extends Thread {
             System.out.println("Socket unsubscribed from group " + group.getHostAddress());
         } catch (IOException e) {
             throw new SocketTechnicalException("Socket unsubscribe from group " + group.getHostAddress() + " error");
-        }
-    }
-
-    private String getLocalAddress() {
-        try(final DatagramSocket socket = new DatagramSocket()){
-            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
-            return socket.getLocalAddress().getHostAddress();
-        } catch (Exception e) {
-            return null;
         }
     }
 

@@ -38,6 +38,9 @@ public class MulticastService {
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
+                            if (SubscriptionConstants.isSubscribed.get()) {
+                                SubscriptionConstants.groupMembers.add(SubscriptionConstants.getLocalAddress());
+                            }
                             System.out.println(SubscriptionConstants.groupMembers);
                             SubscriptionConstants.groupMembers.clear();
                             break;
