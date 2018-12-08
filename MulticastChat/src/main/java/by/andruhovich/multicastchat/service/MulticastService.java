@@ -39,6 +39,7 @@ public class MulticastService {
                                 e.printStackTrace();
                             }
                             System.out.println(SubscriptionConstants.groupMembers);
+                            SubscriptionConstants.groupMembers.clear();
                             break;
                         case SUBSCRIBE:
                             multicastListener.subscribeToGroup();

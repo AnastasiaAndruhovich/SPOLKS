@@ -48,7 +48,7 @@ public class MulticastListener extends Thread {
                     if (receivedData.equals("request")) {
                         MulticastService.multicastSender.sendMessage("response");
                     } else if (receivedData.equals("response")) {
-                        SubscriptionConstants.groupMembers.set(packet.getAddress());
+                        SubscriptionConstants.groupMembers.add(packet.getAddress());
                     }
                 }
             } catch (ReceiveDataTechnicalException | SendDataTechnicalException e) {
