@@ -7,7 +7,9 @@ import by.andruhovich.broadcastchat.exception.ReceiveDataTechnicalException;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.Objects;
 
 public class BroadcastListener extends Thread{
     private DatagramSocket socket;
@@ -35,13 +37,26 @@ public class BroadcastListener extends Thread{
             try {
                 byte[] data = receivePacket();
                 String receivedData = convertData(data);
-                ConsoleWriter.printLine("Client " + packet.getAddress() + ": " + receivedData);
+                String packetAddress = packet.getAddress().getHostAddress();
+                String localAddress = Objects.requireNonNull(getLocalAddress()).getHostAddress();
+                if (!packetAddress.equals(localAddress)) {
+                    ConsoleWriter.printLine("Client " + packet.getAddress() + ": " + receivedData);
+                }
             } catch (ReceiveDataTechnicalException e) {
                 ConsoleWriter.printLine(e.getMessage());
                 running = false;
             }
         }
         socket.close();
+    }
+
+    private static InetAddress getLocalAddress() {
+        try (final DatagramSocket socket = new DatagramSocket()){
+            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+            return socket.getLocalAddress();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private byte[] receivePacket() throws ReceiveDataTechnicalException {
