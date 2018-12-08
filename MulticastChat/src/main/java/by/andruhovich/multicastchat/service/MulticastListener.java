@@ -48,9 +48,9 @@ public class MulticastListener extends Thread {
                     String packetAddress = packet.getAddress().getHostAddress();
                     if (!packetAddress.equals(getLocalAddress())) {
                         ConsoleWriter.printLine("Client " + packet.getAddress() + ": " + receivedData);
-                        if (receivedData.equals("request")) {
+                        if (receivedData.contains("request")) {
                             MulticastService.multicastSender.sendMessage("response");
-                        } else if (receivedData.equals("response")) {
+                        } else if (receivedData.contains("response")) {
                             SubscriptionConstants.groupMembers.add(packet.getAddress());
                         }
                     }
@@ -94,6 +94,7 @@ public class MulticastListener extends Thread {
 
     private byte[] receivePacket() throws ReceiveDataTechnicalException {
         try {
+            packet = new DatagramPacket(buffer, BUFFER_SIZE);
             socket.receive(packet);
             return packet.getData();
         } catch (IOException e) {
