@@ -9,6 +9,7 @@ import by.andruhovich.multicastchat.service.constant.SubscriptionConstants;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 
@@ -44,11 +45,14 @@ public class MulticastListener extends Thread {
                 if (SubscriptionConstants.isSubscribed.get()) {
                     byte[] data = receivePacket();
                     String receivedData = convertData(data);
-                    ConsoleWriter.printLine("Client " + packet.getAddress() + ": " + receivedData);
-                    if (receivedData.equals("request")) {
-                        MulticastService.multicastSender.sendMessage("response");
-                    } else if (receivedData.equals("response")) {
-                        SubscriptionConstants.groupMembers.add(packet.getAddress());
+                    String packetAddress = packet.getAddress().getHostAddress();
+                    if (!packetAddress.equals(getLocalAddress())) {
+                        ConsoleWriter.printLine("Client " + packet.getAddress() + ": " + receivedData);
+                        if (receivedData.equals("request")) {
+                            MulticastService.multicastSender.sendMessage("response");
+                        } else if (receivedData.equals("response")) {
+                            SubscriptionConstants.groupMembers.add(packet.getAddress());
+                        }
                     }
                 }
             } catch (ReceiveDataTechnicalException | SendDataTechnicalException e) {
@@ -76,6 +80,15 @@ public class MulticastListener extends Thread {
             System.out.println("Socket unsubscribed from group " + group.getHostAddress());
         } catch (IOException e) {
             throw new SocketTechnicalException("Socket unsubscribe from group " + group.getHostAddress() + " error");
+        }
+    }
+
+    private String getLocalAddress() {
+        try(final DatagramSocket socket = new DatagramSocket()){
+            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+            return socket.getLocalAddress().getHostAddress();
+        } catch (Exception e) {
+            return null;
         }
     }
 
