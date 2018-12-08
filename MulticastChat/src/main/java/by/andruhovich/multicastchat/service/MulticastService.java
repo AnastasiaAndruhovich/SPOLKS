@@ -30,10 +30,10 @@ public class MulticastService {
                         case PRINT:
                             break;
                         case SUBSCRIBE:
-                            multicastSender.subscribeToGroup();
+                            multicastListener.subscribeToGroup();
                             break;
                         case UNSUBSCRIBE:
-                            multicastSender.unsubscribeFromGroup();
+                            multicastListener.unsubscribeFromGroup();
                             break;
                         case MESSAGE:
                             multicastSender.sendMessage(line);
@@ -51,7 +51,7 @@ public class MulticastService {
                     ConsoleWriter.printLine(e.getMessage());
                 }
             }
-        } catch (CreateSocketTechnicalException | SocketTechnicalException e) {
+        } catch (CreateSocketTechnicalException /*| SocketTechnicalException*/ e) {
             ConsoleWriter.printLine(e.getMessage());
             ConsoleReader.close();
             if (multicastListener != null) {
