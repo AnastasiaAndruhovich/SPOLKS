@@ -12,6 +12,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.util.Arrays;
 
 public class MulticastListener extends Thread {
     private MulticastSocket socket;
@@ -94,7 +95,7 @@ public class MulticastListener extends Thread {
 
     private byte[] receivePacket() throws ReceiveDataTechnicalException {
         try {
-            packet = new DatagramPacket(buffer, BUFFER_SIZE);
+            Arrays.fill(buffer, (byte) 0);
             socket.receive(packet);
             return packet.getData();
         } catch (IOException e) {
